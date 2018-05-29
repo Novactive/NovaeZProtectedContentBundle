@@ -10,22 +10,21 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 /**
  * @ORM\Entity(repositoryClass="PrivateAccessRepository")
- * @UniqueEntity(fields="location_path", message="Location already taken")
+ * @UniqueEntity(fields="locationId", message="Location already taken")
  */
 class PrivateAccess
 {
     /**
      * @ORM\Id
-     * @ORM\Column(type="integer")
+     * @ORM\Column(name="id", type="integer")
      * @ORM\GeneratedValue(strategy="AUTO")
      */
     private $id;
 
     /**
-     * @ORM\Column(type="integer", unique=true)
-     * @Assert\NotBlank()
+     * @ORM\Column(name="location_id", type="integer", unique=true)
      */
-    protected $locationId;
+    private $locationId;
 
     /**
      * @Assert\NotBlank()
@@ -34,22 +33,22 @@ class PrivateAccess
     private $plainPassword;
 
     /**
-     * @ORM\Column(type="string", length=64)
+     * @ORM\Column(name="password", type="string", length=64)
      * @Assert\NotBlank()
      */
-    protected $password;
+    private $password;
 
     /**
      *
-     * @ORM\Column(type="datetime")
+     * @ORM\Column(name="created", type="datetime")
      */
-    protected $created;
+    private $created;
 
     /**
      *
-     * @ORM\Column(type="boolean")
+     * @ORM\Column(name="activate", type="boolean")
      */
-    protected $activate = 0;
+    private $activate = 0;
 
 
     public function __get($name)
@@ -74,17 +73,17 @@ class PrivateAccess
     }
 
     /**
-     * @return integer
+     * @return int
      */
-    public function getLocationId(): integer
+    /*public function getLocationId(): int
     {
         return $this->locationId;
-    }
+    }*/
 
     /**
      * @param integer $location_id
      */
-    public function setLocationId(integer $location_id): void
+    public function setLocationId(int $location_id): void
     {
         $this->locationId = $location_id;
     }

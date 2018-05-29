@@ -17,6 +17,10 @@ class PreContentViewListener
     private $repository;
     private $contentService;
     private $em;
+
+    /**
+     * @var Router
+     */
     private $router;
     private $session;
 
@@ -37,11 +41,13 @@ class PreContentViewListener
          */
         $contentView = $event->getContentView();
 
-        $location = $contentView->getLocation();
+        try {
+            $currentLocation = $contentView->getLocation();
+            $content = $contentView->getContent();
+        }catch (\Error $event){
 
-        $locationId = $location->contentInfo->mainLocationId;
-
-        $content = $contentView->getContent();
+        }
+        $locationId = $currentLocation->id;
 
         $current_user = $this->permissionResolver->getCurrentUserReference();
 
@@ -49,10 +55,10 @@ class PreContentViewListener
 
         $eZUser = $this->repository->getCurrentUser();
 
-        $canRead = $this->permissionResolver->canUser('private_content','read', $content);
+        $canRead = $this->permissionResolver->canUser('private_content','read', $eZUser);
 
         if($result != NULL && $canRead){
-            return RedirectResponse::create($this->router->generate('form_private_access', ['locationid' => $locationId], 'true'),301);
+            return new RedirectResponse($this->router->generate('form_private_access', ['location' => $currentLocation]), '301');
         }
     }
 }

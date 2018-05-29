@@ -19,6 +19,8 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\DateTime;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use EzSystems\RepositoryForms\Form\Type\FieldType\CheckboxFieldType;
+
 
 class PrivateAccessController extends Controller
 {
@@ -30,9 +32,9 @@ class PrivateAccessController extends Controller
 
     public function privateAccessAction(Request $request, Location $location = null)
     {
-        $session = $request->getSession();
-
         $privateAccess = new PrivateAccess();
+
+        $result = $this->getDoctrine()->getRepository('MCPrivateContentAccessBundle:PrivateAccess')->findOneBy(['locationId' => $location->getContentInfo()->mainLocationId]);
 
         /**
          * @var Form
@@ -42,6 +44,12 @@ class PrivateAccessController extends Controller
             'method' => 'POST',
         ));
 
+        if($result) {
+            $form->add('activate', CheckboxFieldType::class, array(
+                'data' => $result->getActivate()
+            ));
+        }
+
         if($location) {
             $form->add('locationId', HiddenType::class, array(
                 'data' => $location->getContentInfo()->mainLocationId
@@ -49,8 +57,9 @@ class PrivateAccessController extends Controller
         }
 
         $form->handleRequest($request);
-        if ($form->isSubmitted() && $form->isValid()) {
-            $data = $form->getData();
+        if ($request-> getMethod() == "POST") {
+
+            $data = $request->request->get('private_access_form');
 
             $repository = $this->container->get('ezpublish.api.repository');
             $contentService = $repository->getLocationService();
@@ -61,14 +70,14 @@ class PrivateAccessController extends Controller
             $date = new \DateTime();
             $privateAccess->setCreated($date);
             $privateAccess->setPassword($data['plainPassword']['first']);
-            $privateAccess->setLocationId($locationInfo->contentInfo->mainLocationId);
+            $privateAccess->setLocationId($data['locationId']);
             $privateAccess->setActivate($data['activate']);
 
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->persist($privateAccess);
             $entityManager->flush();
 
-            return $this->redirectToLocation($locationInfo,'/content/location/');
+            return $this->redirectToLocation($locationInfo,'');
         }
 
         return $this->render(

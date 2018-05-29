@@ -1,2 +1,2 @@
 private_content:
-    read: read
+    read: [read]

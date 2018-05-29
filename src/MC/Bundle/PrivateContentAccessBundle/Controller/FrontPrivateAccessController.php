@@ -4,6 +4,7 @@ namespace  MC\Bundle\PrivateContentAccessBundle\Controller;
 use eZ\Publish\API\Repository\LocationService;
 use eZ\Publish\Core\MVC\Symfony\View\ContentView;
 use eZ\Publish\API\Repository\Values\Content\Location;
+use eZ\Publish\Core\REST\Server\Input\Parser\Criterion\LocationId;
 use MC\Bundle\PrivateContentAccessBundle\Entity\PrivateAccess;
 use MC\Bundle\PrivateContentAccessBundle\Form\PrivateAccessForm;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -22,9 +23,13 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 
 class FrontPrivateAccessController extends Controller
 {
-    public function askPasswordAction(Location $location = null, Request $request)
+    public function askPasswordAction($locationId, Request $request)
     {
-        //$result = $this->getDoctrine()->getRepository('MCPrivateContentAccessBundle:PrivateAccess')->findOneBy(['locationId' => $location->contentInfo->mainLocationId, 'activate' => 1]);
+        $repository = $this->container->get('ezpublish.api.repository');
+        $contentService = $repository->getLocationService();
+        $location = $contentService->loadLocation($locationId);
+        //$content = $repository->getContentService()->loadContent($location->getContentInfo()->id);
+
         $form = $this->createFormBuilder()
             ->add('password', PasswordType::class, array(
                 'constraints' => array(
@@ -33,7 +38,7 @@ class FrontPrivateAccessController extends Controller
                 'label' => false
             ))
             ->add('locationId', HiddenType::class, array(
-                'data' => $location->contentInfo->mainLocationId
+                'data' => $location->id
             ))
             ->add('Valider', SubmitType::class)
             ->getForm();
@@ -56,7 +61,7 @@ class FrontPrivateAccessController extends Controller
 
         return $this->render(
             '@MCPrivateContentAccess/full/ask_password_form.html.twig',
-            array('noLayout' => false, 'form' => $form->createView())
+            array('location' => $location, 'noLayout' => false, 'form' => $form->createView())
         );
     }
 

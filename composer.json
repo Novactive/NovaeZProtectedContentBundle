@@ -2,10 +2,7 @@
   "name": "mc/private-content-access-bundle",
   "type": "symfony-bundle",
   "description": "Make a content private using a password",
-  "keywords": [
-    "ezplatform",
-    "mcc"
-  ],
+  "keywords": ["ezpublish", "novactive", "mcc"],
   "license": "proprietary",
   "authors": [
     {

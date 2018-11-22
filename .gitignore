@@ -1,17 +1,15 @@
-vendor
+# Temp file
+*~
+*.bak
+.php~
+*.swp
 
-bin/doctrine-dbal
-bin/pdepend
-bin/php-cs-fixer
-bin/php-parse
-bin/phpcbf
-bin/phpcpd
-bin/phpcs
-bin/phpmd
-bin/security-checker
-
-data/metrics/*
-!data/metrics/.gitkeep
-
-.php_cs.cache
+# IDE specifics
 .idea
+.DS_Store
+/nbproject/
+/.idea/
+
+.buildpath
+.project
+.settings/

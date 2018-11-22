@@ -1,5 +1,5 @@
 <?php
-namespace MC\Bundle\PrivateContentAccessBundle\Listener;
+namespace MCC\Bundle\PrivateContentAccessBundle\Listener;
 
 use eZ\Publish\API\Repository\Repository;
 use eZ\Publish\Core\MVC\Symfony\Event\PreContentViewEvent;

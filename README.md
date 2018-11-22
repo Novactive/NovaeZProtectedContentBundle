@@ -1,4 +1,4 @@
-DocGA Bundle for Atlantic group
+Private Content Bundle
 ==========================
 
 ## Requirements

@@ -1,11 +1,11 @@
 <?php
-namespace  MC\Bundle\PrivateContentAccessBundle\Controller;
+namespace  MCC\Bundle\PrivateContentAccessBundle\Controller;
 
 use eZ\Publish\API\Repository\LocationService;
 use eZ\Publish\Core\MVC\Symfony\View\ContentView;
 use eZ\Publish\API\Repository\Values\Content\Location;
-use MC\Bundle\PrivateContentAccessBundle\Entity\PrivateAccess;
-use MC\Bundle\PrivateContentAccessBundle\Form\PrivateAccessForm;
+use MCC\Bundle\PrivateContentAccessBundle\Entity\PrivateAccess;
+use MCC\Bundle\PrivateContentAccessBundle\Form\PrivateAccessForm;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
@@ -81,7 +81,7 @@ class PrivateAccessController extends Controller
         }
 
         return $this->render(
-            '@MCPrivateContentAccess/tabs/private_content_tab_form.html.twig',
+            '@MCCPrivateContentAccess/tabs/private_content_tab_form.html.twig',
             array('form' => $form->createView())
         );
     }

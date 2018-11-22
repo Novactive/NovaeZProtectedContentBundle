@@ -1,9 +1,9 @@
 <?php
 
-namespace MC\Bundle\PrivateContentAccessBundle\Form;
+namespace MCC\Bundle\PrivateContentAccessBundle\Form;
 
 use EzSystems\RepositoryForms\Form\Type\FieldType\CheckboxFieldType;
-use MC\Bundle\PrivateContentAccessBundle\Entity\PrivateAccess;
+use MCC\Bundle\PrivateContentAccessBundle\Entity\PrivateAccess;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\FormBuilderInterface;

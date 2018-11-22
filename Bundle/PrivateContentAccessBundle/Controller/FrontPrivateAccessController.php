@@ -1,12 +1,12 @@
 <?php
-namespace  MC\Bundle\PrivateContentAccessBundle\Controller;
+namespace  MCC\Bundle\PrivateContentAccessBundle\Controller;
 
 use eZ\Publish\API\Repository\LocationService;
 use eZ\Publish\Core\MVC\Symfony\View\ContentView;
 use eZ\Publish\API\Repository\Values\Content\Location;
 use eZ\Publish\Core\REST\Server\Input\Parser\Criterion\LocationId;
-use MC\Bundle\PrivateContentAccessBundle\Entity\PrivateAccess;
-use MC\Bundle\PrivateContentAccessBundle\Form\PrivateAccessForm;
+use MCC\Bundle\PrivateContentAccessBundle\Entity\PrivateAccess;
+use MCC\Bundle\PrivateContentAccessBundle\Form\PrivateAccessForm;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
@@ -60,7 +60,7 @@ class FrontPrivateAccessController extends Controller
         }
 
         return $this->render(
-            '@MCPrivateContentAccess/full/ask_password_form.html.twig',
+            '@MCCPrivateContentAccess/full/ask_password_form.html.twig',
             array('location' => $location, 'noLayout' => false, 'form' => $form->createView())
         );
     }

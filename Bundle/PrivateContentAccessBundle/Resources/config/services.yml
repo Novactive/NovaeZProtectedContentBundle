@@ -1,6 +1,6 @@
 parameters:
-  mc.private.content.sites_extensions.class: MC\Bundle\PrivateContentAccessBundle\Custom\PrivateContentTab
-  mc.pre_content_view_listener.class: MC\Bundle\PrivateContentAccessBundle\Listener\PreContentViewListener
+  mc.private.content.sites_extensions.class: MCC\Bundle\PrivateContentAccessBundle\Custom\PrivateContentTab
+  mc.pre_content_view_listener.class: MCC\Bundle\PrivateContentAccessBundle\Listener\PreContentViewListener
 
 services:
   mc.private.content.sites_extensions:
@@ -16,7 +16,7 @@ services:
 
   mc_privateaccess.controller.form:
     public: true
-    class: MC\Bundle\PrivateContentAccessBundle\Controller\PrivateAccessController
+    class: MCC\Bundle\PrivateContentAccessBundle\Controller\PrivateAccessController
     arguments:
       - '@templating'
       - '@ezpublish.api.service.search'
@@ -24,7 +24,7 @@ services:
       - '$languages$'
 
   private_access_form.types.custom_form:
-    class: MC\Bundle\PrivateContentAccessBundle\Form
+    class: MCC\Bundle\PrivateContentAccessBundle\Form
     tags:
       - { name: form.type, alias: 'private_access_form' }
     arguments:

@@ -1,6 +1,6 @@
 <?php
 
-namespace MC\Bundle\PrivateContentAccessBundle\Custom;
+namespace MCC\Bundle\PrivateContentAccessBundle\Custom;
 
 use eZ\Publish\API\Container;
 use eZ\Publish\API\Repository\LocationService;
@@ -14,9 +14,9 @@ use EzSystems\EzPlatformAdminUi\Tab\Dashboard\PagerContentToDataMapper;
 use EzSystems\EzPlatformAdminUi\Form\Factory\FormFactory;
 use eZ\Publish\API\Repository\Values\Content\Query\SortClause;
 use eZ\Publish\API\Repository\Values\Content\LocationQuery;
-use MC\Bundle\PrivateContentAccessBundle\Entity\PrivateAccess;
-use MC\Bundle\PrivateContentAccessBundle\Form\PrivateAccessForm;
-use MC\Bundle\PrivateContentAccessBundle\MCPrivateContentAccessBundle;
+use MCC\Bundle\PrivateContentAccessBundle\Entity\PrivateAccess;
+use MCC\Bundle\PrivateContentAccessBundle\Form\PrivateAccessForm;
+use MCC\Bundle\PrivateContentAccessBundle\MCCPrivateContentAccessBundle;
 use Pagerfanta\Pagerfanta;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Translation\TranslatorInterface;
@@ -68,7 +68,7 @@ class PrivateContentTab extends AbstractTab implements OrderedTabInterface
     {
         $privateAccess = new PrivateAccess();
 
-        return $this->twig->render('@MCPrivateContentAccess/tabs/private_content_tab.html.twig', [
+        return $this->twig->render('@MCCPrivateContentAccess/tabs/private_content_tab.html.twig', [
             'name' => $this->getName(),
             'location' => $parameters['location']
         ]);

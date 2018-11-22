@@ -1,6 +1,6 @@
 <?php
 
-namespace MC\Bundle\PrivateContentAccessBundle\Entity;
+namespace MCC\Bundle\PrivateContentAccessBundle\Entity;
 
 use Doctrine\DBAL\Types\BooleanType;
 use Doctrine\ORM\Mapping as ORM;

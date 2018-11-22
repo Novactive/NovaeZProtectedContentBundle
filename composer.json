@@ -4,7 +4,7 @@
   "description": "Make a content private using a password",
   "keywords": [
     "ezplatform",
-    "mc"
+    "mcc"
   ],
   "license": "proprietary",
   "authors": [
@@ -25,7 +25,7 @@
   },
   "autoload": {
     "psr-4": {
-      "MC\\Bundle\\PrivateContentAccessBundle\\": "src/MC/Bundle/PrivateContentAccessBundle"
+      "MC\\": ""
     }
   },
   "config": {

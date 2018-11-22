@@ -6,7 +6,7 @@
 
 namespace MCC\Bundle\PrivateContentAccessBundle;
 
-use MCC\Bundle\PrivateContentAccessBundle\DependencyInjection\MCPrivateContentAccessBundleExtension;
+use MCC\Bundle\PrivateContentAccessBundle\DependencyInjection\MCCPrivateContentAccessBundleExtension;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
 class MCCPrivateContentAccessBundle extends Bundle

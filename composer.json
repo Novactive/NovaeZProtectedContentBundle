@@ -8,11 +8,11 @@
     {
       "name": "Novactive",
       "homepage": "http://www.novactive.com",
-      "email": "dir.tech@novactive.com"
+      "email": "projet-MCC-TMA@novactive.com"
     }
   ],
   "require": {
-    "ezsystems/ezpublish-kernel": "^7.0"
+    "ezsystems/ezpublish-kernel": "^7.0 || ^7.1"
   },
   "require-dev": {
     "phpmd/phpmd": "^2.6",
@@ -22,7 +22,7 @@
   },
   "autoload": {
     "psr-4": {
-      "MC\\": ""
+      "MCC\\": ""
     }
   },
   "config": {

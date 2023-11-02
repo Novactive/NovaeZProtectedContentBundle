@@ -31,7 +31,9 @@ class ProtectedAccessType extends AbstractType
                     ['label' => 'tab.table.th.children_protection', 'required' => false]
                 )
                 ->add('enabled', CheckboxType::class, ['label' => 'tab.table.th.enabled', 'required' => false])
-                ->add('password', TextType::class, ['required' => true, 'label' => 'tab.table.th.password']);
+                ->add('password', TextType::class, ['required' => false, 'label' => 'tab.table.th.password'])
+                ->add('asEmail', CheckboxType::class, ['label' => 'tab.table.th.as_email', 'required' => false])
+        ;
     }
 
     public function configureOptions(OptionsResolver $resolver): void

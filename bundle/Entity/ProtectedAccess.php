@@ -38,8 +38,7 @@ class ProtectedAccess implements ContentInterface
     /**
      * @var string
      *
-     * @ORM\Column(type="string", length=255, nullable=false)
-     * @Assert\NotBlank()
+     * @ORM\Column(type="string", length=255, nullable=true)
      * @Assert\Length(max=255)
      */
     protected $password;
@@ -50,6 +49,13 @@ class ProtectedAccess implements ContentInterface
      * @ORM\Column(type="boolean", nullable=false)
      */
     protected $enabled;
+
+    /**
+     * @var bool
+     *
+     * @ORM\Column(type="boolean", nullable=false)
+     */
+    protected $asEmail = false;
 
     /**
      * @var bool
@@ -76,12 +82,24 @@ class ProtectedAccess implements ContentInterface
         return $this;
     }
 
+    public function getAsEmail(): bool
+    {
+        return $this->asEmail ?? false;
+    }
+
+    public function setAsEmail(bool $asEmail): self
+    {
+        $this->asEmail = $asEmail;
+
+        return $this;
+    }
+
     public function getPassword(): string
     {
         return $this->password ?? '';
     }
 
-    public function setPassword(string $password): self
+    public function setPassword(?string $password = ''): self
     {
         $this->password = $password;
 

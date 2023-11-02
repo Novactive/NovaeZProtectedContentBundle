@@ -7,6 +7,8 @@ tab.modal.buttons.add: "Add"
 tab.table.th.password: "Password"
 tab.table.th.children_protection: "Protect Children?"
 tab.table.th.enabled: "Enabled?"
+tab.table.th.as_email: "Protection by mail"
+tab.table.th.email: "Your email"
 tab.table.th.remove: "Remove"
 
 tab.yes: "YES"

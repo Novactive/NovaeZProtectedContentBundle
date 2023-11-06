@@ -8,8 +8,13 @@ tab.table.th.password: "Password"
 tab.table.th.children_protection: "Protect Children?"
 tab.table.th.enabled: "Enabled?"
 tab.table.th.as_email: "Protection by mail"
+tab.table.th.message_email: "Message to display in send email"
 tab.table.th.email: "Your email"
+tab.table.th.as_email_message: "Email message defined"
 tab.table.th.remove: "Remove"
+
+mail.link: Click here
+mail.subject: "Your request for access to protected content"
 
 tab.yes: "YES"
 tab.no: "NO"

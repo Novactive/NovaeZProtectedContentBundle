@@ -64,6 +64,13 @@ class ProtectedAccess implements ContentInterface
      */
     protected $protectChildren;
 
+    /**
+     * @var string
+     *
+     * @ORM\Column(type="string", nullable=true)
+     */
+    protected $emailMessage;
+
     public function __construct()
     {
         $this->enabled         = true;
@@ -126,5 +133,15 @@ class ProtectedAccess implements ContentInterface
     public function setProtectChildren(bool $protectChildren): void
     {
         $this->protectChildren = $protectChildren;
+    }
+
+    public function getEmailMessage(): ?string
+    {
+        return $this->emailMessage;
+    }
+
+    public function setEmailMessage(string $emailMessage): void
+    {
+        $this->emailMessage = $emailMessage;
     }
 }

@@ -17,6 +17,7 @@ use eZ\Publish\API\Repository\PermissionResolver;
 use eZ\Publish\Core\MVC\Symfony\Event\PreContentViewEvent;
 use eZ\Publish\Core\MVC\Symfony\View\ContentView;
 use Novactive\Bundle\eZProtectedContentBundle\Entity\ProtectedAccess;
+use Novactive\Bundle\eZProtectedContentBundle\Entity\ProtectedTokenStorage;
 use Novactive\Bundle\eZProtectedContentBundle\Form\RequestEmailProtectedAccessType;
 use Novactive\Bundle\eZProtectedContentBundle\Form\RequestProtectedAccessType;
 use Symfony\Component\Form\FormFactoryInterface;
@@ -82,8 +83,18 @@ class PreContentView
             $request = $this->requestStack->getCurrentRequest();
 
             if ($request->query->has('mail') && $request->query->has('token')) {
-                dump($this->requestStack->getCurrentRequest()->query->get('token'));
-                dump($this->requestStack->getCurrentRequest()->query->get('mail'));
+                $emailProtections = $this->entityManager->getRepository(ProtectedTokenStorage::class)->findByContentId($content->id);
+
+                foreach ($emailProtections as $emailProtection) {
+                    /** @var ProtectedTokenStorage $emailProtection */
+                    if (
+                        $emailProtection->getToken() == $request->get('token')
+                        && $emailProtection->getMail() == $request->get('mail')
+                        && $emailProtection->getCreated()->getTimestamp() >= strtotime('now - 1 hours')
+                    ) {
+                        $canRead = true;
+                    }
+                }
             } else {
                 $cookies = $request->cookies;
                 foreach ($cookies as $name => $value) {

@@ -15,6 +15,10 @@ services:
         resource: '../../Controller'
         tags: ['controller.service_arguments']
 
+    Novactive\Bundle\eZProtectedContentBundle\Command\CleanTokenCommand:
+        tags:
+            - { name: 'novaezprotectedcontent:cleantoken', command: 'novaezprotectedcontent:cleantoken' }
+
     Novactive\Bundle\eZProtectedContentBundle\Core\Tab\ProtectContent:
         tags:
             - { name: ezplatform.tab, group: location-view }

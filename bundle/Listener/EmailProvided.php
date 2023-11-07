@@ -19,7 +19,7 @@ use Novactive\Bundle\eZProtectedContentBundle\Entity\ProtectedAccess;
 use Novactive\Bundle\eZProtectedContentBundle\Entity\ProtectedTokenStorage;
 use Novactive\Bundle\eZProtectedContentBundle\Form\RequestEmailProtectedAccessType;
 use Swift_Message;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
@@ -53,23 +53,23 @@ class EmailProvided
     private $translator;
 
     /**
-     * @var ContainerInterface
+     * @var ParameterBagInterface
      */
-    private $container;
+    private $parameterBag;
 
     public function __construct(
         FormFactoryInterface $formFactory,
         Swift_Mailer $mailer,
         EntityManagerInterface $entityManager,
         TranslatorInterface $translator,
-        ContainerInterface $container
+        ParameterBagInterface $parameterBag
     )
     {
         $this->formFactory     = $formFactory;
         $this->mailer          = $mailer;
         $this->entityManager   = $entityManager;
         $this->translator      = $translator;
-        $this->container       = $container;
+        $this->parameterBag    = $parameterBag;
         $this->messageInstance = new Swift_Message();
 
     }
@@ -117,7 +117,7 @@ class EmailProvided
 
         $message = $this->messageInstance
             ->setSubject('Access to protected content')
-            ->setFrom($this->container->getParameter('default_sender_email'))
+            ->setFrom($this->parameterBag->get('default_sender_email'))
             ->setTo($receiver)
             ->setContentType('text/html')
             ->setBody(

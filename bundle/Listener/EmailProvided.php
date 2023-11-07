@@ -19,8 +19,8 @@ use Novactive\Bundle\eZProtectedContentBundle\Entity\ProtectedAccess;
 use Novactive\Bundle\eZProtectedContentBundle\Entity\ProtectedTokenStorage;
 use Novactive\Bundle\eZProtectedContentBundle\Form\RequestEmailProtectedAccessType;
 use Swift_Message;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Form\FormFactoryInterface;
-use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 use Swift_Mailer;
@@ -52,18 +52,26 @@ class EmailProvided
      */
     private $translator;
 
+    /**
+     * @var ContainerInterface
+     */
+    private $container;
+
     public function __construct(
         FormFactoryInterface $formFactory,
         Swift_Mailer $mailer,
         EntityManagerInterface $entityManager,
-        TranslatorInterface $translator
+        TranslatorInterface $translator,
+        ContainerInterface $container
     )
     {
-        $this->formFactory   = $formFactory;
-        $this->mailer        = $mailer;
-        $this->entityManager = $entityManager;
-        $this->translator    = $translator;
+        $this->formFactory     = $formFactory;
+        $this->mailer          = $mailer;
+        $this->entityManager   = $entityManager;
+        $this->translator      = $translator;
+        $this->container       = $container;
         $this->messageInstance = new Swift_Message();
+
     }
 
     public function onKernelRequest(GetResponseEvent $event): void
@@ -109,7 +117,7 @@ class EmailProvided
 
         $message = $this->messageInstance
             ->setSubject('Access to protected content')
-            ->setFrom('noreply@culture.gouv.fr')
+            ->setFrom($this->container->getParameter('default_sender_email'))
             ->setTo($receiver)
             ->setContentType('text/html')
             ->setBody(

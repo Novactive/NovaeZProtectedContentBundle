@@ -122,7 +122,7 @@ class EmailProvided
             ->setContentType('text/html')
             ->setBody(
                 $protectedAccess->getEmailMessage()
-                . "</br><a href='$link'>".$this->translator->trans('mail.link')."</a>"
+                . "</br><a href='$link'>".$this->translator->trans('mail.link', [], 'ezprotectedcontent')."</a>"
             );
 
         try {

@@ -82,13 +82,15 @@ class PreContentView
         if (!$canRead) {
             $request = $this->requestStack->getCurrentRequest();
 
-            if ($request->query->has('mail') && $request->query->has('token')) {
+            if ($request->query->has('mail')
+                && $request->query->has('token')
+                && !$request->query->has('waiting_validation')
+            ) {
                 $emailProtections = $this->entityManager->getRepository(ProtectedTokenStorage::class)->findByContentId($content->id);
 
                 foreach ($emailProtections as $emailProtection) {
                     /** @var ProtectedTokenStorage $emailProtection */
-                    if (
-                        $emailProtection->getToken() == $request->get('token')
+                    if ($emailProtection->getToken() == $request->get('token')
                         && $emailProtection->getMail() == $request->get('mail')
                         && $emailProtection->getCreated()->getTimestamp() >= strtotime('now - 1 hours')
                     ) {

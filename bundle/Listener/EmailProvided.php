@@ -18,6 +18,7 @@ use Exception;
 use Novactive\Bundle\eZProtectedContentBundle\Entity\ProtectedAccess;
 use Novactive\Bundle\eZProtectedContentBundle\Entity\ProtectedTokenStorage;
 use Novactive\Bundle\eZProtectedContentBundle\Form\RequestEmailProtectedAccessType;
+use Ramsey\Uuid\Uuid;
 use Swift_Message;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Form\FormFactoryInterface;
@@ -85,12 +86,11 @@ class EmailProvided
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $data           = $form->getData();
-            $contentId      = intval($data['content_id']);
-            $randomString   = bin2hex(random_bytes(16));
-            $token          = substr($randomString, 0, 16);
+            $data      = $form->getData();
+            $contentId = intval($data['content_id']);
+            $token     = Uuid::uuid4()->toString();
+            $access    = new ProtectedTokenStorage();
 
-            $access         = new ProtectedTokenStorage();
             $access->setMail($data['email']);
             $access->setContentId($contentId);
             $access->setCreated(new DateTime());

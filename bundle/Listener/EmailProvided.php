@@ -116,7 +116,7 @@ class EmailProvided
         $protectedAccess = $this->entityManager->getRepository(ProtectedAccess::class)->findOneBy(['contentId' => $contentId]);
 
         $message = $this->messageInstance
-            ->setSubject('Access to protected content')
+            ->setSubject($this->translator->trans('mail.subject', [], 'ezprotectedcontent'))
             ->setFrom($this->parameterBag->get('default_sender_email'))
             ->setTo($receiver)
             ->setContentType('text/html')

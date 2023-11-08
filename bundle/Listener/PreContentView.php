@@ -20,6 +20,7 @@ use Novactive\Bundle\eZProtectedContentBundle\Entity\ProtectedAccess;
 use Novactive\Bundle\eZProtectedContentBundle\Entity\ProtectedTokenStorage;
 use Novactive\Bundle\eZProtectedContentBundle\Form\RequestEmailProtectedAccessType;
 use Novactive\Bundle\eZProtectedContentBundle\Form\RequestProtectedAccessType;
+use Novactive\Bundle\eZProtectedContentBundle\Repository\ProtectedTokenStorageRepository;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
@@ -86,16 +87,16 @@ class PreContentView
                 && $request->query->has('token')
                 && !$request->query->has('waiting_validation')
             ) {
-                $emailProtections = $this->entityManager->getRepository(ProtectedTokenStorage::class)->findByContentId($content->id);
+                /** @var ProtectedTokenStorageRepository $protectedTokenStorageRepository */
+                $protectedTokenStorageRepository = $this->entityManager->getRepository(ProtectedTokenStorage::class);
+                $unexpiredToken = $protectedTokenStorageRepository->findUnexpiredBy([
+                    'content_id'      => $content->id,
+                    'token'           => $request->get('token'),
+                    'mail'            => $request->get('mail')
+                ]);
 
-                foreach ($emailProtections as $emailProtection) {
-                    /** @var ProtectedTokenStorage $emailProtection */
-                    if ($emailProtection->getToken() == $request->get('token')
-                        && $emailProtection->getMail() == $request->get('mail')
-                        && $emailProtection->getCreated()->getTimestamp() >= strtotime('now - 1 hours')
-                    ) {
-                        $canRead = true;
-                    }
+                if (count($unexpiredToken) > 0 ) {
+                    $canRead = true;
                 }
             } else {
                 $cookies = $request->cookies;

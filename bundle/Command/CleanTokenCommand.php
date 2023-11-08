@@ -14,6 +14,7 @@ namespace Novactive\Bundle\eZProtectedContentBundle\Command;
 
 use Doctrine\ORM\EntityManagerInterface;
 use Novactive\Bundle\eZProtectedContentBundle\Entity\ProtectedTokenStorage;
+use Novactive\Bundle\eZProtectedContentBundle\Repository\ProtectedTokenStorageRepository;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -47,13 +48,10 @@ class CleanTokenCommand extends Command
     {
         $io = new SymfonyStyle($input, $output);
 
-        $dbQuery = $this->entityManager->createQueryBuilder()
-            ->select('c')
-            ->from(ProtectedTokenStorage::class, 'c')
-            ->where('c.created < :nowMinusOneHour')
-            ->setParameter('nowMinusOneHour', new \DateTime('now - 1 hours'));
+        /** @var ProtectedTokenStorageRepository $protectedTokenStorageRepository */
+        $protectedTokenStorageRepository  = $this->entityManager->getRepository(ProtectedTokenStorage::class);
 
-        $entities = $dbQuery->getQuery()->getResult();
+        $entities =  $protectedTokenStorageRepository->findExpired();
 
         foreach ($entities as $entity) {
             $this->entityManager->remove($entity);

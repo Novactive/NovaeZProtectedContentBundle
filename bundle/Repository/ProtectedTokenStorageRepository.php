@@ -27,7 +27,7 @@ class ProtectedTokenStorageRepository extends EntityRepository
             ->setParameter('nowMinusOneHour', new \DateTime('now - 1 hours'));
 
         foreach ($criteria as $key => $criterion) {
-            $dbQuery->andWhere("c.$key = $criterion");
+            $dbQuery->andWhere("c.$key = '$criterion'");
         }
 
         return $dbQuery->getQuery()->getResult();

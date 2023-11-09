@@ -26,6 +26,7 @@
                         {{ form_row(form.enabled) }}
                         {{ form_row(form.asEmail) }}
                         {{ form_row(form.emailMessage) }}
+                        <span class="small">{{ form.emailMessage.vars['help']|trans }}</span>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary btn--no" data-dismiss="modal">

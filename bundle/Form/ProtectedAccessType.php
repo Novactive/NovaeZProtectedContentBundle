@@ -35,7 +35,11 @@ class ProtectedAccessType extends AbstractType
                 ->add('enabled', CheckboxType::class, ['label' => 'tab.table.th.enabled', 'required' => false])
                 ->add('password', TextType::class, ['required' => false, 'label' => 'tab.table.th.password'])
                 ->add('asEmail', CheckboxType::class, ['label' => 'tab.table.th.as_email', 'required' => false])
-                ->add('emailMessage', TextareaType::class, ['label' => 'tab.table.th.message_email', 'required' => false])
+                ->add('emailMessage', TextareaType::class, [
+                    'label' => 'tab.table.th.message_email',
+                    'help' => 'mail.help_message',
+                    'required' => false
+                ])
         ;
     }
 

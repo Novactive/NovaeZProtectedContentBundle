@@ -115,14 +115,16 @@ class EmailProvided
         /** @var ProtectedAccess $protectedAccess */
         $protectedAccess = $this->entityManager->getRepository(ProtectedAccess::class)->findOneBy(['contentId' => $contentId]);
 
+        $mailLink = "<a href='$link'>".$this->translator->trans('mail.link', [], 'ezprotectedcontent')."</a>";
+        $bodyMessage = str_replace('{{ url }}', $mailLink, $protectedAccess->getEmailMessage());
+
         $message = $this->messageInstance
             ->setSubject($this->translator->trans('mail.subject', [], 'ezprotectedcontent'))
             ->setFrom($this->parameterBag->get('default_sender_email'))
             ->setTo($receiver)
             ->setContentType('text/html')
             ->setBody(
-                $protectedAccess->getEmailMessage()
-                . "</br><a href='$link'>".$this->translator->trans('mail.link', [], 'ezprotectedcontent')."</a>"
+                $bodyMessage
             );
 
         try {

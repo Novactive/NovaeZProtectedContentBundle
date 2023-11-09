@@ -13,6 +13,7 @@ tab.table.th.email: "Votre adresse email"
 tab.table.th.as_email_message: "Message email défini"
 tab.table.th.remove: "Supprimer"
 
+mail.help_message: Add {{ url }} in your message it will be replace by "Click here" and a link
 mail.link: "Cliquez ici"
 mail.subject: "Votre demande d'accès à un contenu protégé"
 

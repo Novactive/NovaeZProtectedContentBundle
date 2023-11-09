@@ -18,6 +18,7 @@ services:
     Novactive\Bundle\eZProtectedContentBundle\Command\CleanTokenCommand:
         tags:
             - { name: 'novaezprotectedcontent:cleantoken', command: 'novaezprotectedcontent:cleantoken' }
+            - { name: ezplatform.cron.job, schedule: '0 1 * * *' }
 
     Novactive\Bundle\eZProtectedContentBundle\Core\Tab\ProtectContent:
         tags:

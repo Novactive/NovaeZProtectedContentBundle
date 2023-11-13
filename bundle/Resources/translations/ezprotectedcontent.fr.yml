@@ -19,3 +19,5 @@ mail.subject: "Votre demande d'accès à un contenu protégé"
 
 tab.yes: "OUI"
 tab.no: "NON"
+
+'This area is email protected.': 'Cette zone est protégé par une vérification de courriel'

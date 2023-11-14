@@ -15,6 +15,11 @@ services:
         resource: '../../Controller'
         tags: ['controller.service_arguments']
 
+    Novactive\Bundle\eZProtectedContentBundle\Command\CleanTokenCommand:
+        tags:
+            - { name: 'novaezprotectedcontent:cleantoken', command: 'novaezprotectedcontent:cleantoken' }
+            - { name: ezplatform.cron.job, schedule: '0 1 * * *' }
+
     Novactive\Bundle\eZProtectedContentBundle\Core\Tab\ProtectContent:
         tags:
             - { name: ezplatform.tab, group: location-view }
@@ -28,5 +33,9 @@ services:
             - { name: kernel.event_listener, event: ezpublish.pre_content_view, method: onPreContentView }
 
     Novactive\Bundle\eZProtectedContentBundle\Listener\PasswordProvided:
+        tags:
+            - { name: kernel.event_listener, event: kernel.request, method: 'onKernelRequest', priority: -100}
+
+    Novactive\Bundle\eZProtectedContentBundle\Listener\EmailProvided:
         tags:
             - { name: kernel.event_listener, event: kernel.request, method: 'onKernelRequest', priority: -100}

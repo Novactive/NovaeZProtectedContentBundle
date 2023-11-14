@@ -13,10 +13,12 @@ declare(strict_types=1);
 namespace Novactive\Bundle\eZProtectedContentBundle\Form;
 
 use Novactive\Bundle\eZProtectedContentBundle\Entity\ProtectedAccess;
+
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -31,7 +33,14 @@ class ProtectedAccessType extends AbstractType
                     ['label' => 'tab.table.th.children_protection', 'required' => false]
                 )
                 ->add('enabled', CheckboxType::class, ['label' => 'tab.table.th.enabled', 'required' => false])
-                ->add('password', TextType::class, ['required' => true, 'label' => 'tab.table.th.password']);
+                ->add('password', TextType::class, ['required' => false, 'label' => 'tab.table.th.password'])
+                ->add('asEmail', CheckboxType::class, ['label' => 'tab.table.th.as_email', 'required' => false])
+                ->add('emailMessage', TextareaType::class, [
+                    'label' => 'tab.table.th.message_email',
+                    'help' => 'mail.help_message',
+                    'required' => false
+                ])
+        ;
     }
 
     public function configureOptions(OptionsResolver $resolver): void

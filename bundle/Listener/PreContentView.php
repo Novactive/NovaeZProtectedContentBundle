@@ -17,10 +17,8 @@ use eZ\Publish\API\Repository\PermissionResolver;
 use eZ\Publish\Core\MVC\Symfony\Event\PreContentViewEvent;
 use eZ\Publish\Core\MVC\Symfony\View\ContentView;
 use Novactive\Bundle\eZProtectedContentBundle\Entity\ProtectedAccess;
-use Novactive\Bundle\eZProtectedContentBundle\Entity\ProtectedTokenStorage;
 use Novactive\Bundle\eZProtectedContentBundle\Form\RequestEmailProtectedAccessType;
 use Novactive\Bundle\eZProtectedContentBundle\Form\RequestProtectedAccessType;
-use Novactive\Bundle\eZProtectedContentBundle\Repository\ProtectedTokenStorageRepository;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
@@ -83,35 +81,27 @@ class PreContentView
         if (!$canRead) {
             $request = $this->requestStack->getCurrentRequest();
 
-            if ($request->query->has('mail')
-                && $request->query->has('token')
-                && !$request->query->has('waiting_validation')
-            ) {
-                /** @var ProtectedTokenStorageRepository $protectedTokenStorageRepository */
-                $protectedTokenStorageRepository = $this->entityManager->getRepository(ProtectedTokenStorage::class);
-                $unexpiredToken = $protectedTokenStorageRepository->findUnexpiredBy([
-                    'content_id'      => $content->id,
-                    'token'           => $request->get('token'),
-                    'mail'            => $request->get('mail')
-                ]);
-
-                if (count($unexpiredToken) > 0 ) {
-                    $canRead = true;
+            $cookies = $request->cookies;
+            foreach ($cookies as $name => $value) {
+                // TODO On a 2 fournisseur de cookies. PasswordProvided et EmailProvided.
+                //      J'ai fait en sorte que EmailProvided respecte le format du PasswordProvided.
+                //      C'est donc le même COOKIE_PREFIX
+                // Règle 1 = Le nom du cookie doit commencer par COOKIE_PREFIX
+                if (PasswordProvided::COOKIE_PREFIX !== substr($name, 0, \strlen(PasswordProvided::COOKIE_PREFIX))) {
+                    continue;
                 }
-            } else {
-                $cookies = $request->cookies;
-                foreach ($cookies as $name => $value) {
-                    if (PasswordProvided::COOKIE_PREFIX !== substr($name, 0, \strlen(PasswordProvided::COOKIE_PREFIX))) {
-                        continue;
+                // Règle 2 = Le nom du cookie doit contenir la valeur ... TODO ..  Pourquoi ? C'est bizarre comme règle ..
+                if (str_replace(PasswordProvided::COOKIE_PREFIX, '', $name) !== $value) {
+                    continue;
+                }
+                foreach ($protections as $protection) {
+                    // Protection par mot de passe.
+                    if ($protection->getPassword() && md5($protection->getPassword()) === $value) {
+                        $canRead = true;
                     }
-                    if (str_replace(PasswordProvided::COOKIE_PREFIX, '', $name) !== $value) {
-                        continue;
-                    }
-                    foreach ($protections as $protection) {
-                        /** @var ProtectedAccess $protection */
-                        if (md5($protection->getPassword()) === $value) {
-                            $canRead = true;
-                        }
+                    // Protection par email.
+                    if ($protection->getAsEmail() && EmailProvided::isValidHash($value, $protection->getContentId())) {
+                        $canRead = true;
                     }
                 }
             }

@@ -18,10 +18,12 @@ use Exception;
 use Novactive\Bundle\eZProtectedContentBundle\Entity\ProtectedAccess;
 use Novactive\Bundle\eZProtectedContentBundle\Entity\ProtectedTokenStorage;
 use Novactive\Bundle\eZProtectedContentBundle\Form\RequestEmailProtectedAccessType;
+use Novactive\Bundle\eZProtectedContentBundle\Repository\ProtectedTokenStorageRepository;
 use Ramsey\Uuid\Uuid;
 use Swift_Message;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Form\FormFactoryInterface;
+use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 use Swift_Mailer;
@@ -80,11 +82,14 @@ class EmailProvided
         if (!$event->isMasterRequest()) {
             return;
         }
-        $form = $this->formFactory->create(RequestEmailProtectedAccessType::class);
 
         $request = $event->getRequest();
-        $form->handleRequest($request);
 
+        // ÉTAPE 2 - On reçoit le formulaire avec l'adresse email de l'internaute (+ le contentID).
+        // On va créer un token (ProtectedTokenStorage) et générer un email avec un lien qui sera utilisé dans l'étape 3.
+        // On affiche à internaute un message pour lui demander de vérifier ses mails.
+        $form = $this->formFactory->create(RequestEmailProtectedAccessType::class);
+        $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $data      = $form->getData();
             $contentId = intval($data['content_id']);
@@ -106,6 +111,51 @@ class EmailProvided
             $response->setPrivate();
             $event->setResponse($response);
         }
+
+        // ÉTAPE 3 - L'internaute a cliqué sur le lien dans le mail généré à l'étape 2
+        // On retrouve le token et on crée un cookie
+        // On redirige l'internaute vers la page demandée.
+        if ($request->query->has('mail')
+            && $request->query->has('token')
+            && !$request->query->has('waiting_validation')
+        ) {
+            $token = $request->get('token');
+            $mail = $request->get('mail');
+
+            /** @var ProtectedTokenStorageRepository $protectedTokenStorageRepository */
+            $protectedTokenStorageRepository = $this->entityManager->getRepository(ProtectedTokenStorage::class);
+            $unexpiredTokenList = $protectedTokenStorageRepository->findUnexpiredBy([
+                //'content_id'      => $content->id, // TODO, On a pas le contentID ... est ce que on le met dans le line du mail ? On en a pas forcément besoin ... ?
+                'token'           => $token,
+                'mail'            => $mail
+            ]);
+
+            if (count($unexpiredTokenList) > 0 ) {
+                $uri = $request->getRequestUri();
+                $path = parse_url($uri, PHP_URL_PATH);
+                $response = new RedirectResponse($path);
+                $response->setPrivate();
+
+                foreach ($unexpiredTokenList as $unexpiredToken) {
+                    $hash   = self::hash($unexpiredToken->getContentId());
+                    $cookie = new Cookie(PasswordProvided::COOKIE_PREFIX.$hash, $hash, strtotime('now + 24 hours')); // TODO réflexion sur la durées
+                    $response->headers->setCookie($cookie);
+                    // TODO Supprimer/invalider le token ?
+                }
+
+                $event->setResponse($response);
+            }
+        }
+    }
+
+    public static function hash(int $contentId): string
+    {
+        return md5((string) $contentId);
+    }
+
+    public static function isValidHash(string $hash, int $contentId): bool
+    {
+        return $hash === self::hash($contentId);
     }
 
     /**

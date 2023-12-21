@@ -53,5 +53,10 @@
             "name": "ezsystems/ezplatform",
             "url": "https://github.com/ezsystems/ezplatform"
         }
+    },
+    "config": {
+        "allow-plugins": {
+            "symfony/thanks": false
+        }
     }
 }

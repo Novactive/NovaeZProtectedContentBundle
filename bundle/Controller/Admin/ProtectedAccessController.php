@@ -14,32 +14,43 @@ namespace Novactive\Bundle\eZProtectedContentBundle\Controller\Admin;
 
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
-use eZ\Publish\API\Repository\Values\Content\Location;
-use EzSystems\PlatformHttpCacheBundle\PurgeClient\PurgeClientInterface;
+use Ibexa\Contracts\Core\Repository\Values\Content\Content;
+use Ibexa\Contracts\Core\Repository\Values\Content\Location;
+use Ibexa\Contracts\Core\Repository\Values\Content\Query;
+use Ibexa\Contracts\HttpCache\Handler\ContentTagInterface;
+use Ibexa\Core\Repository\SiteAccessAware\Repository;
 use Novactive\Bundle\eZProtectedContentBundle\Entity\ProtectedAccess;
 use Novactive\Bundle\eZProtectedContentBundle\Form\ProtectedAccessType;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Symfony\Component\Form\FormFactory;
+use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\RouterInterface;
 
 class ProtectedAccessController
 {
+    public function __construct(
+        protected readonly Repository $repository,
+        protected readonly \Ibexa\Contracts\Core\Search\Handler $searchHandler,
+        protected readonly \Ibexa\Contracts\Core\Persistence\Handler $persistenceHandler,
+    ) { }
+
     /**
      * @Route("/handle/{locationId}/{access}", name="novaezprotectedcontent_bundle_admin_handle_form",
      *                                           defaults={"accessId": null})
      */
+    //#[Route(path: '/handle/{locationId}/{access}', name: 'novaezprotectedcontent_bundle_admin_handle_form')]
     public function handle(
-        Location $location,
+        int $locationId,
         Request $request,
-        FormFactory $formFactory,
+        FormFactoryInterface $formFactory,
         EntityManagerInterface $entityManager,
         RouterInterface $router,
-        PurgeClientInterface $httpCachePurgeClient,
-        ?ProtectedAccess $access = null
+        ContentTagInterface $responseTagger,
+        ?ProtectedAccess $access = null,
     ): RedirectResponse {
         if ($request->isMethod('post')) {
+            $location = $this->repository->getLocationService()->loadLocation($locationId);
             $now = new DateTime();
             if (null === $access) {
                 $access = new ProtectedAccess();
@@ -52,38 +63,95 @@ class ProtectedAccessController
                 $access->setUpdated($now);
                 $entityManager->persist($access);
                 $entityManager->flush();
-                $httpCachePurgeClient->purge(
-                    [
-                        'location-'.$location->id,
-                        'location-'.$location->parentLocationId,
-                    ]
-                );
+                $responseTagger->addLocationTags([$location->id]);
+                $responseTagger->addParentLocationTags([$location->parentLocationId]);
+
+                $content = $location->getContent();
+                $this->reindexContent($content);
+                if ($access->isProtectChildren()) {
+                    $this->reindexChildren($content);
+                }
             }
         }
 
-        return new RedirectResponse($router->generate($location).'#ez-tab-location-view-protect-content#tab');
+        return new RedirectResponse(
+            $router->generate('ibexa.content.view', ['contentId' => $location->contentId,
+                'locationId' => $location->id,
+            ]).
+            '#ibexa-tab-location-view-protect-content#tab'
+        );
     }
 
-    /**
-     * @Route("/remove/{locationId}/{access}", name="novaezprotectedcontent_bundle_admin_remove_protection")
-     */
+    #[Route(path: '/remove/{locationId}/{access}', name: 'novaezprotectedcontent_bundle_admin_remove_protection')]
     public function remove(
         Location $location,
         EntityManagerInterface $entityManager,
         RouterInterface $router,
-        ProtectedAccess $access,
-        PurgeClientInterface $httpCachePurgeClient
+        int $access,
+        ContentTagInterface $responseTagger
     ): RedirectResponse {
+        $access = $entityManager->find(ProtectedAccess::class, $access);
         $entityManager->remove($access);
         $entityManager->flush();
+        $responseTagger->addLocationTags([$location->id]);
+        $responseTagger->addParentLocationTags([$location->parentLocationId]);
 
-        $httpCachePurgeClient->purge(
-            [
-                'location-'.$location->id,
-                'location-'.$location->parentLocationId,
-            ]
+        $content = $location->getContent();
+        $this->reindexContent($content);
+        if ($access->isProtectChildren()) {
+            $this->reindexChildren($content);
+        }
+
+        return new RedirectResponse(
+            $router->generate('ibexa.content.view', ['contentId' => $location->contentId,
+                'locationId' => $location->id,
+            ]).
+            '#ibexa-tab-location-view-protect-content#tab'
+        );
+    }
+
+    /**
+     * @param Content $content
+     * @return void
+     */
+    protected function reindexContent(Content $content)
+    {
+        $contentId = $content->id;
+        $contentVersionNo = $content->getVersionInfo()->versionNo;
+
+        $this->searchHandler->indexContent(
+            $this->persistenceHandler->contentHandler()->load($contentId, $contentVersionNo)
         );
 
-        return new RedirectResponse($router->generate($location).'#ez-tab-location-view-protect-content#tab');
+        $locations = $this->persistenceHandler->locationHandler()->loadLocationsByContent($contentId);
+        foreach ($locations as $location) {
+            $this->searchHandler->indexLocation($location);
+        }
+    }
+
+    protected function reindexChildren(Content $content, int $limit = 100)
+    {
+        $locations = $this->repository->getLocationService()->loadLocations($content->contentInfo);
+        $pathStringArray = [];
+        foreach ($locations as $location) {
+            /** @var Location $location */
+            $pathStringArray[] = $location->pathString;
+        }
+
+        if ($pathStringArray) {
+            $query = new Query();
+            $query->limit = $limit;
+            $query->filter = new Query\Criterion\LogicalAnd([
+                new Query\Criterion\Subtree($pathStringArray)
+            ]);
+            $query->sortClauses = [
+                new Query\SortClause\ContentId(),
+                // new Query\SortClause\Visibility(), // domage..
+            ];
+            $searchResult = $this->repository->getSearchService()->findContent($query);
+            foreach ($searchResult->searchHits as $hit) {
+                $this->reindexContent($hit->valueObject);
+            }
+        }
     }
 }

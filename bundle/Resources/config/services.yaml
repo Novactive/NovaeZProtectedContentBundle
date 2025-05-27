@@ -7,6 +7,8 @@ services:
         public: false
         bind:
             $entityManager: "@ibexa.doctrine.orm.entity_manager"
+            $searchHandler: '@ibexa.spi.search'
+            $persistenceHandler: '@ibexa.api.persistence_handler'
 
     Novactive\Bundle\eZProtectedContentBundle\Command\:
         resource: '../../Command'

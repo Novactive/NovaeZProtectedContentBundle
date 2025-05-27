@@ -1,0 +1,43 @@
+-
+    type: object_state_group
+    mode: create
+    metadata:
+        identifier: nova_content_protected
+        mainTranslation: fre-FR
+        translations:
+            fre-FR:
+                name: Nova Protection des contenus
+                description: 'Par mot de passe ou email. Ne pas changer manuellement !'
+#            eng-US:
+#                name: Nova-Content-Protected
+#                description: 'By password or email. Do not change manually!'
+-
+    type: object_state
+    mode: create
+    metadata:
+        identifier: default
+        mainTranslation: fre-FR
+        objectStateGroup: nova_content_protected
+        priority: 1
+        translations:
+            fre-FR:
+                name: Défaut
+                description: 'Pas de protection par défaut. Ne pas changer manuellement !'
+#            eng-US:
+#                name: Default
+#                description: 'No protection by default. Do not change manually!'
+-
+    type: object_state
+    mode: create
+    metadata:
+        identifier: protected
+        mainTranslation: fre-FR
+        objectStateGroup: nova_content_protected
+        priority: 1
+        translations:
+            fre-FR:
+                name: Protégé
+                description: 'Protégé par un mot de passe ou par email. Ne pas changer manuellement !'
+#            eng-US:
+#                name: Protected
+#                description: 'Protected by password or email. Do not change manually!'

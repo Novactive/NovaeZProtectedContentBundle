@@ -31,6 +31,10 @@ use Symfony\Component\Routing\RouterInterface;
 
 class ProtectedAccessController
 {
+    public const GROUP='nova_protected_content';
+    public const STATE_DEFAULT='default';
+    public const STATE_PROTECTED='protected';
+
     public function __construct(
         protected readonly Repository $repository,
         protected readonly \Ibexa\Contracts\Core\Search\Handler $searchHandler,
@@ -69,9 +73,9 @@ class ProtectedAccessController
                 $responseTagger->addParentLocationTags([$location->parentLocationId]);
 
                 $content = $location->getContent();
-                $this->reindexContent($content);
+                $this->setState($content, SELF::STATE_DEFAULT);
                 if ($access->isProtectChildren()) {
-                    $this->reindexChildren($content);
+                    $this->updateChildrenState($content, SELF::STATE_DEFAULT);
                 }
             }
         }
@@ -99,9 +103,9 @@ class ProtectedAccessController
         $responseTagger->addParentLocationTags([$location->parentLocationId]);
 
         $content = $location->getContent();
-        $this->reindexContent($content);
+        $this->setState($content, SELF::STATE_DEFAULT);
         if ($access->isProtectChildren()) {
-            $this->reindexChildren($content);
+            $this->updateChildrenState($content, SELF::STATE_DEFAULT);
         }
 
         return new RedirectResponse(
@@ -112,26 +116,7 @@ class ProtectedAccessController
         );
     }
 
-    /**
-     * @param Content $content
-     * @return void
-     */
-    protected function reindexContent(Content $content)
-    {
-        $contentId = $content->id;
-        $contentVersionNo = $content->getVersionInfo()->versionNo;
-
-        $this->searchHandler->indexContent(
-            $this->persistenceHandler->contentHandler()->load($contentId, $contentVersionNo)
-        );
-
-        $locations = $this->persistenceHandler->locationHandler()->loadLocationsByContent($contentId);
-        foreach ($locations as $location) {
-            $this->searchHandler->indexLocation($location);
-        }
-    }
-
-    protected function reindexChildren(Content $content, int $limit = 100)
+    protected function updateChildrenState(Content $content, string $state): void
     {
         $locations = $this->repository->getLocationService()->loadLocations($content->contentInfo);
         $pathStringArray = [];
@@ -142,18 +127,21 @@ class ProtectedAccessController
 
         if ($pathStringArray) {
             $query = new Query();
-            $query->limit = $limit;
+            $query->limit = 100;
             $query->filter = new Query\Criterion\LogicalAnd([
                 new Query\Criterion\Subtree($pathStringArray)
             ]);
-            $query->sortClauses = [
-                new Query\SortClause\ContentId(),
-                // new Query\SortClause\Visibility(), // domage..
-            ];
             $searchResult = $this->repository->getSearchService()->findContent($query);
             foreach ($searchResult->searchHits as $hit) {
-                $this->reindexContent($hit->valueObject);
+                $this->setState($hit->valueObject, $state);
             }
         }
+    }
+
+    public function setState(Content $content, string $state): void
+    {
+        $group = $this->repository->getObjectStateService()->loadObjectStateGroupByIdentifier(self::GROUP);
+        $state = $this->repository->getObjectStateService()->loadObjectStateByIdentifier($group,$state);
+        $this->repository->getObjectStateService()->setContentState($content->getContentInfo(), $group, $state);
     }
 }

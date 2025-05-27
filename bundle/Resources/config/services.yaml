@@ -6,7 +6,12 @@ services:
         autoconfigure: true
         public: false
         bind:
-            $httpCachePurgeClient: '@ezplatform.http_cache.purge_client'
+            $entityManager: "@ibexa.doctrine.orm.entity_manager"
+            $searchHandler: '@ibexa.spi.search'
+            $persistenceHandler: '@ibexa.api.persistence_handler'
+
+    Novactive\Bundle\eZProtectedContentBundle\Command\:
+        resource: '../../Command'
 
     Novactive\Bundle\eZProtectedContentBundle\Repository\:
         resource: '../../Repository'
@@ -15,18 +20,23 @@ services:
         resource: '../../Controller'
         tags: ['controller.service_arguments']
 
+    Novactive\Bundle\eZProtectedContentBundle\Command\CleanTokenCommand:
+        tags:
+            - { name: 'novaezprotectedcontent:cleantoken', command: 'novaezprotectedcontent:cleantoken' }
+            - { name: ibexa.cron.job, schedule: '0 1 * * *' }
+
     Novactive\Bundle\eZProtectedContentBundle\Core\Tab\ProtectContent:
         tags:
-            - { name: ezplatform.tab, group: location-view }
-
-    Novactive\Bundle\eZProtectedContentBundle\Listener\EntityContentLink:
-        tags:
-            - { name: doctrine.orm.entity_listener }
+            - { name: ibexa.admin_ui.tab, group: location-view }
 
     Novactive\Bundle\eZProtectedContentBundle\Listener\PreContentView:
         tags:
             - { name: kernel.event_listener, event: ezpublish.pre_content_view, method: onPreContentView }
 
     Novactive\Bundle\eZProtectedContentBundle\Listener\PasswordProvided:
+        tags:
+            - { name: kernel.event_listener, event: kernel.request, method: 'onKernelRequest', priority: -100}
+
+    Novactive\Bundle\eZProtectedContentBundle\Listener\EmailProvided:
         tags:
             - { name: kernel.event_listener, event: kernel.request, method: 'onKernelRequest', priority: -100}

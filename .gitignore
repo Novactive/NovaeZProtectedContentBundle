@@ -4,3 +4,4 @@ vendor
 .php_cs.cache
 ezplatform
 .web-server-pid
+.idea

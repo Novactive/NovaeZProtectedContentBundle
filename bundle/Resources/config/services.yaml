@@ -10,6 +10,9 @@ services:
             $searchHandler: '@ibexa.spi.search'
             $persistenceHandler: '@ibexa.api.persistence_handler'
 
+    Novactive\Bundle\eZProtectedContentBundle\Services\:
+      resource: '../../Services'
+
     Novactive\Bundle\eZProtectedContentBundle\Command\:
         resource: '../../Command'
 

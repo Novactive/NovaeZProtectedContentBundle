@@ -48,7 +48,8 @@ class ProtectedAccessController extends Controller
         protected readonly EntityManagerInterface $entityManager,
         protected readonly ContentTagInterface $responseTagger,
         protected readonly RouterInterface $router,
-    ) { }
+    ) {
+    }
 
     #[Route(path: '/list', name: 'novaezprotectedcontent_bundle_admin_list_protection')]
     public function list(Request $request): ?Response
@@ -63,7 +64,6 @@ class ProtectedAccessController extends Controller
 
         foreach ($list as $item) {
             /** @var ProtectedAccess $item */
-
             $count = $this->protectedAccessHelper->count($item);
             $content = $this->protectedAccessHelper->getContent($item);
             $data[$item->getId()] = [
@@ -85,7 +85,7 @@ class ProtectedAccessController extends Controller
      * @Route("/handle/{locationId}/{access}", name="novaezprotectedcontent_bundle_admin_handle_form",
      *                                           defaults={"accessId": null})
      */
-    //#[Route(path: '/handle/{locationId}/{access}', name: 'novaezprotectedcontent_bundle_admin_handle_form')]
+    // #[Route(path: '/handle/{locationId}/{access}', name: 'novaezprotectedcontent_bundle_admin_handle_form')]
     public function handle(
         int $locationId,
         Request $request,
@@ -168,9 +168,9 @@ class ProtectedAccessController extends Controller
         $access = $this->entityManager->find(ProtectedAccess::class, $accessId);
         $entityManager->remove($access);
         $entityManager->flush();
+
         return new RedirectResponse(
             $this->router->generate('novaezprotectedcontent_bundle_admin_list_protection')
         );
     }
-
 }

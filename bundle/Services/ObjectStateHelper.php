@@ -20,11 +20,11 @@ class ObjectStateHelper
         protected readonly ObjectStateService $objectStateService,
         protected readonly ProtectedAccessHelper $protectedAccessHelper,
         protected readonly LoggerInterface $logger,
-    ) { }
+    ) {
+    }
 
     public string $objectStateGroupIdentifier = 'protected_content';
     public string $objectStateEmailGroupIdentifier = 'protected_content_email';
-//    public string $objectStatePasswordGroupIdentifier = 'protected_content_password';
 
     public string $protectedObjectStateIdentifier = 'protected';
     public string $unprotectedObjectStateIdentifier = 'unprotected';
@@ -37,6 +37,7 @@ class ObjectStateHelper
             $this->logger->error($notFoundException->getMessage(), [
                 '$objectStateGroupIdentifier' => $objectStateGroupIdentifier,
             ]);
+
             return null;
         }
     }
@@ -51,6 +52,7 @@ class ObjectStateHelper
                 '$objectStateIdentifier' => $objectStateIdentifier,
             ]);
         }
+
         return null;
     }
 
@@ -106,9 +108,17 @@ class ObjectStateHelper
                     $objectState = $this->getObjectState($objectStateGroup, $this->unprotectedObjectStateIdentifier);
                 }
                 if ($objectState) {
-                    if ($this->objectStateService->getContentState($content->contentInfo, $objectStateGroup)->identifier !== $objectState->identifier) {
+                    $contentState = $this->objectStateService->getContentState(
+                        $content->contentInfo,
+                        $objectStateGroup
+                    );
+                    if ($contentState->identifier !== $objectState->identifier) {
                         $this->repository->sudo(function () use ($content, $objectStateGroup, $objectState) {
-                            $this->objectStateService->setContentState($content->contentInfo, $objectStateGroup, $objectState);
+                            $this->objectStateService->setContentState(
+                                $content->contentInfo,
+                                $objectStateGroup,
+                                $objectState
+                            );
                         });
                     }
                 }
